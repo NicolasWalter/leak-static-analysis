@@ -15,7 +15,6 @@ public class BinOpExprHandler implements ValueHandler {
 
     @Override
     public boolean handle(Value value) {
-        System.out.println("binopexpr");
         BinopExpr expr = (BinopExpr) value;
         Value firstOperand = expr.getOp1();
         Value secondOperand = expr.getOp2();

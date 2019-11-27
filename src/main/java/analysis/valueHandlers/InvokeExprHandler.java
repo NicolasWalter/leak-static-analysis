@@ -23,7 +23,6 @@ public class InvokeExprHandler implements ValueHandler {
 
     @Override
     public boolean handle(Value value) {
-        System.out.println("invokeexpr");
         InvokeExpr invoke = (InvokeExpr) value;
         SootMethod method = invoke.getMethod();
         if (method.getName().equals("markAsSensible") && method.getDeclaringClass().getName().equals("analysis.SensitivityConverter")) {
@@ -34,7 +33,9 @@ public class InvokeExprHandler implements ValueHandler {
             return possibleLeak(invoke);
         }
 
-
+        if (method.getName().equals("sanitize") && method.getDeclaringClass().getName().equals("analysis.SensitivityConverter")) {
+            return sanitize(invoke);
+        }
 
         Analysis analysis =  Analysis.newWithBodyAndParams(
                 invoke.getMethod().getActiveBody(),
@@ -65,6 +66,16 @@ public class InvokeExprHandler implements ValueHandler {
         if (sensibleArgument.isPresent()) {
             this.possibleLeak = true;
             return true;
+        }
+        return false;
+    }
+
+    private boolean sanitize(InvokeExpr invoke) {
+        List<Value> args = invoke.getArgs();
+        for (int i = 0 ; i < args.size() ; i ++) {
+            if (args.get(i) instanceof Local) {
+                abstractedLocals.put(((Local) args.get(i)).getName(), Lattice.NOT_SENSIBLE);
+            }
         }
         return false;
     }

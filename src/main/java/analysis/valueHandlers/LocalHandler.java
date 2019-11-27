@@ -15,7 +15,6 @@ public class LocalHandler implements ValueHandler {
 
     @Override
     public boolean handle(Value value) {
-        System.out.println("localexpr");
         Local local = (Local) value;
         return Lattice.isSensible(this.abstractedLocals.getOrDefault(local.getName(), Lattice.BOTTOM));
     }

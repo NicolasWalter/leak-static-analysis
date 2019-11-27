@@ -4,13 +4,19 @@ import analysis.SensitivityConverter;
 
 public class Main {
     public static void main(String[] args){
-        Object obj1 = new Object();
-        SensitivityConverter.markAsSensible(obj1);
-        System.out.println(obj1);
-        String prueba = "prueba string";
-        Integer hola = 5;
-        SensitivityConverter.markAsSensible(hola);
-        System.out.println(prueba);
-        System.out.println(hola);
+        Object sensible = new Object();
+        SensitivityConverter.markAsSensible(sensible);
+        System.out.println(sensible);
+        Integer noSensible = 5;
+        System.out.println(noSensible);
+        SensitivityConverter.sanitize(sensible);
+        System.out.println(sensible);
+        test();
+    }
+
+    public static void test(){
+        Object asd = new Object();
+        SensitivityConverter.markAsSensible(asd);
+        System.out.println(asd);
     }
 }

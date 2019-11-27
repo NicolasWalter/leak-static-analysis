@@ -18,7 +18,6 @@ public class ValHandler implements ValueHandler {
 
     @Override
     public boolean handle(Value value) {
-        System.out.println("valhandler");
         ValueHandler handler = createHandler(value);
         this.handler = handler;
         return handler.handle(value);
