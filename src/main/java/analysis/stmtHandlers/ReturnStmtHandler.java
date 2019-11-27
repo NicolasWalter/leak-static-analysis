@@ -4,35 +4,35 @@ import analysis.lattice.Lattice;
 import analysis.valueHandlers.ValHandler;
 import analysis.valueHandlers.ValueHandler;
 import soot.Value;
-import soot.jimple.InvokeStmt;
+import soot.jimple.ReturnStmt;
 import soot.jimple.Stmt;
 
 import java.util.Map;
 
-public class InvokeStmtHandler implements StmtHandler {
+public class ReturnStmtHandler implements StmtHandler{
     private Map<String, Lattice> abstractedLocals;
-    boolean possibleLeak = false;
-    InvokeStmtHandler(Map<String, Lattice> abstractedLocals) {
+    boolean returningSensible;
+
+    ReturnStmtHandler(Map<String, Lattice> abstractedLocals) {
         this.abstractedLocals = abstractedLocals;
     }
-
     @Override
     public boolean handle(Stmt stmt) {
-        InvokeStmt statement = (InvokeStmt) stmt;
-        Value value = statement.getInvokeExpr();
+        ReturnStmt statement = (ReturnStmt) stmt;
+        Value value = statement.getOp();
         ValueHandler valHandler = new ValHandler(this.abstractedLocals);
-        boolean result = valHandler.handle(value);
-        this.possibleLeak = valHandler.hasPossibleLeak();
-        return result;
+        boolean returningSensible = valHandler.handle(value);
+        this.returningSensible = returningSensible;
+        return returningSensible;
     }
 
     @Override
     public boolean hasPossibleLeak() {
-        return possibleLeak;
+        return false;
     }
 
     @Override
-    public boolean isReturningSensible() {
-        return false;
+    public boolean isReturningSensible(){
+        return this.returningSensible;
     }
 }

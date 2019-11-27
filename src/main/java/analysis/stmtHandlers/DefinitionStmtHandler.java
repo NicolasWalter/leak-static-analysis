@@ -36,4 +36,9 @@ public class DefinitionStmtHandler implements StmtHandler {
     public boolean hasPossibleLeak() {
         return this.possibleLeak;
     }
+
+    @Override
+    public boolean isReturningSensible() {
+        return false;
+    }
 }

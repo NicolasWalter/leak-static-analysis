@@ -23,12 +23,20 @@ public class StatementHandler implements StmtHandler{
         return this.handler.hasPossibleLeak();
     }
 
+    @Override
+    public boolean isReturningSensible() {
+        return this.handler.isReturningSensible();
+    }
+
     private StmtHandler createHandler(Stmt statement) {
         if (statement instanceof InvokeStmt) {
             return new InvokeStmtHandler(this.abstractedLocals);
         }
         if (statement instanceof DefinitionStmt) {
             return new DefinitionStmtHandler(this.abstractedLocals);
+        }
+        if (statement instanceof ReturnStmt) {
+            return new ReturnStmtHandler(this.abstractedLocals);
         }
         return new UnknownHandler();
     }

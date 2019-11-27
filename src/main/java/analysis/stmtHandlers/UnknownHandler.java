@@ -15,4 +15,9 @@ public class UnknownHandler implements StmtHandler {
     public boolean hasPossibleLeak() {
         return false;
     }
+
+    @Override
+    public boolean isReturningSensible() {
+        return false;
+    }
 }

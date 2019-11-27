@@ -1,11 +1,13 @@
 package analysis.valueHandlers;
 
+import analysis.Analysis;
 import analysis.lattice.Lattice;
 import soot.Local;
 import soot.SootMethod;
 import soot.Value;
 import soot.jimple.InvokeExpr;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,7 +33,17 @@ public class InvokeExprHandler implements ValueHandler {
         if (method.getName().equals("println") && method.getDeclaringClass().getName().equals("java.io.PrintStream")) {
             return possibleLeak(invoke);
         }
-       return false;
+
+
+
+        Analysis analysis =  Analysis.newWithBodyAndParams(
+                invoke.getMethod().getActiveBody(),
+                this.toLattice(invoke)
+        );
+
+        possibleLeak = analysis.hasPossibleLeak();
+
+        return analysis.isReturningSensible();
     }
 
     public boolean markAsSensible(InvokeExpr invoke) {
@@ -59,5 +71,14 @@ public class InvokeExprHandler implements ValueHandler {
 
     public boolean hasPossibleLeak(){
         return this.possibleLeak;
+    }
+
+    public Map<Integer, Lattice> toLattice(InvokeExpr expr) {
+        Map<Integer, Lattice> abstractedArgs = new HashMap<>();
+        List<Value> args = expr.getArgs();
+        for (int index = 0; index < args.size(); index ++) {
+            abstractedArgs.put(index, this.abstractedLocals.getOrDefault(args.get(index), Lattice.BOTTOM));
+        }
+        return abstractedArgs;
     }
 }

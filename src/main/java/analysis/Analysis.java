@@ -18,11 +18,16 @@ import java.util.Map;
 
 public class Analysis extends ForwardFlowAnalysis<Unit, Map<String, Lattice>> {
     private Map<String, Lattice> abstractedLocals;
+    private Map<Integer, Lattice> methodParams;
+    boolean hasPossibleLeak;
+    boolean returningSensible;
 
-    public Analysis(UnitGraph graph) {
+    public Analysis(UnitGraph graph, Map<Integer, Lattice> methodParams) {
         super(graph);
         this.abstractedLocals = new HashMap<>();
-
+        this.methodParams = methodParams;
+        this.hasPossibleLeak = false;
+        this.returningSensible = false;
         for (Local local : graph.getBody().getLocals()) {
             this.abstractedLocals.put(local.getName(), Lattice.BOTTOM);
         }
@@ -30,7 +35,11 @@ public class Analysis extends ForwardFlowAnalysis<Unit, Map<String, Lattice>> {
     }
 
     public static Analysis newWithBody(Body body) {
-        return new Analysis(new ExceptionalUnitGraph(body));
+        return new Analysis(new ExceptionalUnitGraph(body), new HashMap<>());
+    }
+
+    public static Analysis newWithBodyAndParams(Body body, Map<Integer, Lattice> methodParams) {
+        return new Analysis(new ExceptionalUnitGraph(body), methodParams);
     }
 
     @Override
@@ -40,7 +49,9 @@ public class Analysis extends ForwardFlowAnalysis<Unit, Map<String, Lattice>> {
         if (handler.hasPossibleLeak()) {
             int lineNumber = getLineNumberFromUnit(node);
             System.out.println("\n WARNING: possible leak on line: " + lineNumber + "\n");
+            hasPossibleLeak = true;
         }
+        this.returningSensible = handler.isReturningSensible();
         out.clear();
         out.putAll(in);
     }
@@ -65,6 +76,14 @@ public class Analysis extends ForwardFlowAnalysis<Unit, Map<String, Lattice>> {
     protected void copy(Map<String, Lattice> in, Map<String, Lattice> out) {
         out.clear();
         out.putAll(in);
+    }
+
+    public boolean hasPossibleLeak() {
+        return hasPossibleLeak;
+    }
+
+    public boolean isReturningSensible(){
+        return this.returningSensible;
     }
 
     public static int getLineNumberFromUnit(Unit unit) {
